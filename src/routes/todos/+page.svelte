@@ -19,42 +19,19 @@
 		{:then todos}
 			<Todo
 				items={todos}
-				crud={{
-					insert: async ({ text, done }) => {
-						await fetch("/todos/api", {
-							method: "POST",
-							body: JSON.stringify({ type: "insert", text: text, done: done }),
-							headers: {
-								"Content-Type": "application/json",
-							},
-						});
-					},
-					update: async ({ id, text, done }) => {
-						await fetch("/todos/api", {
-							method: "POST",
-							body: JSON.stringify({
-								type: "update",
-								id: id,
-								text: text,
-								done: done,
-							}),
-							headers: {
-								"Content-Type": "application/json",
-							},
-						});
-					},
-					delete: async ({ id }) => {
-						await fetch("/todos/api", {
-							method: "POST",
-							body: JSON.stringify({ type: "delete", id: id }),
-							headers: {
-								"Content-Type": "application/json",
-							},
-						});
-					},
-					reload: () => {
-						invalidate("app:todos");
-					},
+				submitOps={async ({ insertList, updateList, deleteList }) => {
+					await fetch("/todos/api", {
+						method: "POST",
+						body: JSON.stringify({
+							insertList: insertList,
+							updateList: updateList,
+							deleteList: deleteList,
+						}),
+						headers: {
+							"Content-Type": "application/json",
+						},
+					});
+					invalidate("app:todos");
 				}}
 			/>
 		{:catch err}

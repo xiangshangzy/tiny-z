@@ -1,30 +1,21 @@
 <script lang="ts">
 	interface Props {
 		items: { id: number; text: string; done: boolean }[];
-		crud:
-			| {
-					insert: ({
-						text,
-						done,
-					}: {
-						text: string;
-						done: boolean;
-					}) => Promise<void>;
-					update: ({
-						id,
-						text,
-						done,
-					}: {
-						id: number;
-						text: string | undefined;
-						done: boolean | undefined;
-					}) => Promise<void>;
-					delete: ({ id }: { id: number }) => Promise<void>;
-					reload: () => void;
-			  }
-			| undefined;
+		submitOps: ({
+			insertList,
+			updateList,
+			deleteList,
+		}: {
+			insertList: { text: string; done: boolean }[];
+			updateList: {
+				id: number;
+				text: string | undefined;
+				done: boolean | undefined;
+			}[];
+			deleteList: { id: number }[];
+		}) => Promise<void>;
 	}
-	let { items, crud }: Props = $props();
+	let { items, submitOps }: Props = $props();
 	let incrementalOps: (
 		| { type: "insert"; id: number; text: string; done: boolean }
 		| { type: "delete"; id: number }
@@ -168,25 +159,23 @@
 	{#if incrementalOps.length > 0}
 		<button
 			onclick={async () => {
-				if (typeof crud === "undefined") {
-					incrementalOps = [];
-					return;
-				}
-
+				const insertList: Parameters<typeof submitOps>[0]["insertList"] = [];
+				const updateList: Parameters<typeof submitOps>[0]["updateList"] = [];
+				const deleteList: Parameters<typeof submitOps>[0]["deleteList"] = [];
 				for (const op of incrementalOps) {
 					switch (op.type) {
 						case "insert":
-							await crud.insert(op);
+							insertList.push(op);
 							break;
 						case "update":
-							await crud.update(op);
+							updateList.push(op);
 							break;
 						case "delete":
-							await crud.delete(op);
+							deleteList.push(op);
 							break;
 					}
 				}
-				crud.reload();
+				await submitOps({insertList,updateList,deleteList},)
 			}}>submit</button
 		>
 		<button

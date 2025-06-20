@@ -1,20 +1,22 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { addTodo, deleteTodo, updateTodo } from '$lib/server/router/todos';
+import { addTodos, deleteTodos, updateTodos } from '$lib/server/router/todos';
 
 export const POST: RequestHandler = async ({ request }) => {
-  const dto: { type: 'insert'; text: string, done: boolean } | {
-    type: 'update'; id: number, text: string | undefined, done: boolean | undefined
-  } | { type: 'delete'; id: number }
-    = await request.json()
-  switch (dto.type) {
-    case 'insert': await addTodo(dto.text, dto.done)
-      break;
-    case 'delete': await deleteTodo(dto.id)
-      break;
-    case 'update':
-      await updateTodo(dto.id, dto.text, dto.done)
-      break;
-  }
-  return json({ type: dto.type, msg: 'ok' })
+  const dto
+    = await request.json() satisfies {
+      insertList: { text: string, done: boolean }[]
+      updateList: { id: number, text: string | undefined, done: boolean | undefined }[]
+      deleteList: { id: number }[]
+    }
+
+  const tasks: Promise<void>[] = []
+  if (dto.insertList.length > 0)
+    tasks.push(addTodos(dto.insertList))
+  if (dto.updateList.length > 0)
+    tasks.push(updateTodos(dto.updateList))
+  if (dto.deleteList.length > 0)
+    tasks.push(deleteTodos(dto.deleteList))
+  await Promise.all(tasks)
+  return json({ type: 'todosApi', msg: 'ok' })
 };
