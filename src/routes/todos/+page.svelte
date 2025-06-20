@@ -21,7 +21,7 @@
 				items={todos}
 				crud={{
 					insert: async ({ text, done }) => {
-						await fetch("/todos", {
+						await fetch("/todos/api", {
 							method: "POST",
 							body: JSON.stringify({ type: "insert", text: text, done: done }),
 							headers: {
@@ -30,7 +30,7 @@
 						});
 					},
 					update: async ({ id, text, done }) => {
-						await fetch("/todos", {
+						await fetch("/todos/api", {
 							method: "POST",
 							body: JSON.stringify({
 								type: "update",
@@ -44,7 +44,7 @@
 						});
 					},
 					delete: async ({ id }) => {
-						await fetch("/todos", {
+						await fetch("/todos/api", {
 							method: "POST",
 							body: JSON.stringify({ type: "delete", id: id }),
 							headers: {
