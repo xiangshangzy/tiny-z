@@ -179,8 +179,6 @@
 					}
 				}
 				await submitOps({ insertList, updateList, deleteList });
-				incrementalOps = [];
-				isSubmitting = false;
 			}}>submit</button
 		>
 		<button
