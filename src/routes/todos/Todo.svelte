@@ -29,6 +29,7 @@
 		  }
 	)[] = $state([]);
 
+	let isSubmitting = $state(false);
 	let fullItems = $derived.by(() => {
 		let fullItems = [...items];
 
@@ -158,7 +159,9 @@
 
 	{#if incrementalOps.length > 0}
 		<button
+			disabled={isSubmitting}
 			onclick={async () => {
+				isSubmitting = true;
 				const insertList: Parameters<typeof submitOps>[0]["insertList"] = [];
 				const updateList: Parameters<typeof submitOps>[0]["updateList"] = [];
 				const deleteList: Parameters<typeof submitOps>[0]["deleteList"] = [];
@@ -175,14 +178,18 @@
 							break;
 					}
 				}
-				await submitOps({insertList,updateList,deleteList},)
+				await submitOps({ insertList, updateList, deleteList });
+				incrementalOps = [];
+				isSubmitting = false;
 			}}>submit</button
 		>
 		<button
+			disabled={isSubmitting}
 			onclick={() => {
 				incrementalOps = [];
 			}}>reset</button
 		>
+		<span>{isSubmitting ? "Submitting" : ""}</span>
 	{/if}
 	<ul class="todos">
 		{#each fullItems as item (item.id)}
