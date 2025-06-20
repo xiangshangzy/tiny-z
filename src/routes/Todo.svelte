@@ -186,7 +186,6 @@
 							break;
 					}
 				}
-				incrementalOps = [];
 				crud.reload();
 			}}>submit</button
 		>
